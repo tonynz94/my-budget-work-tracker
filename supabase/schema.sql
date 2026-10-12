@@ -36,3 +36,27 @@ create policy "owner only" on public.settings
   to authenticated
   using (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com')
   with check (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com');
+
+-- Step 2. One work record for one day. Times are minutes from midnight.
+-- A record has start_min and end_min, or it has total_min.
+create table if not exists public.work_entries (
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  work_date date not null,
+  kind text not null check (kind in ('regular', 'holiday_worked', 'holiday_not_worked')),
+  start_min integer,
+  end_min integer,
+  total_min integer,
+  break_min integer not null default 0,
+  note text not null default '',
+  updated_at timestamptz not null default now(),
+  primary key (user_id, work_date)
+);
+
+alter table public.work_entries enable row level security;
+
+drop policy if exists "owner only" on public.work_entries;
+create policy "owner only" on public.work_entries
+  for all
+  to authenticated
+  using (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com')
+  with check (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com');

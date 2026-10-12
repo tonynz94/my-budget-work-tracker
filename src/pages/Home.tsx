@@ -1,22 +1,21 @@
 import { useState } from 'react'
 import { BottomSheet } from '../components/BottomSheet'
 import { Pressable } from '../components/Pressable'
+import { WeekCard } from '../components/WeekCard'
+import { WorkEntrySheet } from '../components/WorkEntrySheet'
+import { nzDate } from '../lib/nzTime'
 
-// The numbers are empty for now. Each card gets real data in a later step.
+// The pay card and the budget card are empty for now. They get real data in a later step.
 export function Home() {
   const [adding, setAdding] = useState(false)
+  const [workDate, setWorkDate] = useState<string | null>(null)
 
   return (
     <>
       <h1 className="page-title">Home</h1>
 
       <div className="card-grid">
-        <section className="card">
-          <p className="card-label">Work this week</p>
-          <p className="big-number">– h</p>
-          <p className="muted">– h left of 25 h</p>
-          <span className="chip">Step 2</span>
-        </section>
+        <WeekCard />
 
         <section className="card">
           <p className="card-label">Pay this period</p>
@@ -41,9 +40,15 @@ export function Home() {
 
       <BottomSheet open={adding} title="Add" onClose={() => setAdding(false)}>
         <div className="list">
-          <Pressable className="row" disabled>
+          <Pressable
+            className="row"
+            onClick={() => {
+              setAdding(false)
+              setWorkDate(nzDate())
+            }}
+          >
             <span>Work hours</span>
-            <span className="chip">Step 2</span>
+            <span className="muted">Today</span>
           </Pressable>
           <Pressable className="row" disabled>
             <span>Expense</span>
@@ -51,6 +56,8 @@ export function Home() {
           </Pressable>
         </div>
       </BottomSheet>
+
+      <WorkEntrySheet date={workDate} onClose={() => setWorkDate(null)} />
     </>
   )
 }

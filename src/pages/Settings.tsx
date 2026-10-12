@@ -1,11 +1,17 @@
-import { motion } from 'motion/react'
+import { useState } from 'react'
+import { BottomSheet } from '../components/BottomSheet'
+import { Segment } from '../components/Form'
 import { Pressable } from '../components/Pressable'
 import { useAuth } from '../lib/auth'
+import { useConfig } from '../lib/config'
+import type { SyncState, ThemeMode } from '../lib/config'
+import { weekStart } from '../lib/dates'
+import { formatDuration, formatMoney } from '../lib/format'
 import { nzDate } from '../lib/nzTime'
-import { useTheme } from '../lib/theme'
-import type { SyncState, ThemeMode } from '../lib/theme'
+import { limitForWeek } from '../lib/work'
+import { HolidayForm, JobForm, LimitForm, PresetForm, VacationForm } from './SettingsSheets'
 
-const modes: { value: ThemeMode; label: string }[] = [
+const themeModes: { value: ThemeMode; label: string }[] = [
   { value: 'system', label: 'System' },
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
@@ -18,9 +24,34 @@ const syncText: Record<SyncState, string> = {
   error: 'Sync failed. Check the internet and try again.',
 }
 
+type Sheet = 'job' | 'limit' | 'vacation' | 'holiday' | 'preset'
+
+const sheetTitles: Record<Sheet, string> = {
+  job: 'Job',
+  limit: 'Weekly limit',
+  vacation: 'Vacation periods',
+  holiday: 'Public holidays',
+  preset: 'Presets',
+}
+
 export function Settings() {
   const auth = useAuth()
-  const theme = useTheme()
+  const { config, update, sync } = useConfig()
+  const [open, setOpen] = useState<Sheet | null>(null)
+  // Keep the last sheet, so its content stays on screen while it slides away.
+  const [shown, setShown] = useState<Sheet>('job')
+  if (open && open !== shown) setShown(open)
+  const close = () => setOpen(null)
+
+  const today = nzDate()
+  const rate = [...config.rates].sort((a, b) => b.from.localeCompare(a.from)).find((item) => item.from <= today)
+  const rows: { sheet: Sheet; value: string }[] = [
+    { sheet: 'job', value: rate ? `${formatMoney(rate.cents)} an hour` : 'Not set' },
+    { sheet: 'limit', value: formatDuration(limitForWeek(weekStart(today), config.limits)) },
+    { sheet: 'vacation', value: String(config.vacations.length) },
+    { sheet: 'holiday', value: `x${config.holidayMultiplier}` },
+    { sheet: 'preset', value: String(config.presets.length) },
+  ]
 
   return (
     <>
@@ -28,40 +59,40 @@ export function Settings() {
 
       <div className="card-grid">
         <section className="card">
-          <p className="card-label">Appearance</p>
-          <div className="segment" role="radiogroup" aria-label="Appearance">
-            {modes.map((item) => (
-              <button
-                key={item.value}
-                type="button"
-                role="radio"
-                aria-checked={theme.mode === item.value}
-                className="segment-item"
-                onClick={() => theme.setMode(item.value)}
-              >
-                {theme.mode === item.value && (
-                  <motion.span
-                    layoutId="segment-pill"
-                    className="segment-pill"
-                    transition={{ type: 'spring', stiffness: 500, damping: 36 }}
-                  />
-                )}
-                <span className="segment-label">{item.label}</span>
-              </button>
+          <p className="card-label">Work</p>
+          <div className="list">
+            {rows.map((row) => (
+              <Pressable key={row.sheet} className="row" onClick={() => setOpen(row.sheet)}>
+                <span>{sheetTitles[row.sheet]}</span>
+                <span className="muted">{row.value} ›</span>
+              </Pressable>
             ))}
           </div>
-          <p className={theme.sync === 'error' ? 'muted text-red' : 'muted'}>{syncText[theme.sync]}</p>
+        </section>
+
+        <section className="card">
+          <p className="card-label">Appearance</p>
+          <Segment label="Appearance" options={themeModes} value={config.theme} onChange={(theme) => update({ theme })} />
+          <p className={sync === 'error' ? 'muted text-red' : 'muted'}>{syncText[sync]}</p>
         </section>
 
         <section className="card">
           <p className="card-label">Account</p>
           <p className="card-value">{auth.email ?? 'Preview mode, not logged in'}</p>
-          <p className="muted">Today in New Zealand is {nzDate()}</p>
+          <p className="muted">Today in New Zealand is {today}</p>
           <Pressable className="button button-plain" onClick={auth.signOut}>
             {auth.status === 'preview' ? 'Leave preview' : 'Log out'}
           </Pressable>
         </section>
       </div>
+
+      <BottomSheet open={open !== null} title={sheetTitles[shown]} onClose={close}>
+        {shown === 'job' && <JobForm onClose={close} />}
+        {shown === 'limit' && <LimitForm onClose={close} />}
+        {shown === 'vacation' && <VacationForm />}
+        {shown === 'holiday' && <HolidayForm />}
+        {shown === 'preset' && <PresetForm />}
+      </BottomSheet>
     </>
   )
 }
