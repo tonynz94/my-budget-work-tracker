@@ -3,6 +3,7 @@ import { formatDate } from '../lib/dates'
 import { formatMoney } from '../lib/format'
 import { useBudget } from '../lib/useBudget'
 import type { BudgetView } from '../lib/useBudget'
+import { AnimatedMoney } from './AnimatedMoney'
 import { BottomSheet } from './BottomSheet'
 import { Line, PayPeriodSheet } from './PayPeriodSheet'
 import { Pressable } from './Pressable'
@@ -31,9 +32,7 @@ export function BudgetCard() {
     <>
       <Pressable className="card card-button" onClick={() => setOpen('summary')}>
         <span className="card-label">Left today</span>
-        <span className={summary.leftToday < 0 ? 'big-number text-red' : 'big-number'}>
-          {formatMoney(summary.leftToday)}
-        </span>
+        <AnimatedMoney cents={summary.leftToday} className={summary.leftToday < 0 ? 'big-number text-red' : 'big-number'} />
         <span className="muted">
           Budget today {formatMoney(summary.todayBudget)} · Spent today {formatMoney(summary.spentToday)}
         </span>

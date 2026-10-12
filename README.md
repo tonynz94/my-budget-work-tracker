@@ -9,8 +9,11 @@ I am an international student in Auckland. My student visa lets me work 25 hours
 - It records my work hours and shows the hours left this week.
 - It shows how much I earned in each pay period, before tax and after tax.
 - It shows how much I can spend today, based on my last pay.
+- It writes fixed costs like rent into the budget book when their date comes.
+- It knows the New Zealand public holidays and the PAYE tax rates.
+- It exports the work records and the budget records as CSV files.
 
-The app is still in progress. I build it step by step.
+The calculations are in `src/lib` and they have tests. I wrote the tests from the examples in my own spec, for example the daily budget and the tax for one pay period.
 
 ## Tech
 

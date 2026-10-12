@@ -6,6 +6,7 @@ import { nzDate } from '../lib/nzTime'
 import { nextPaidPeriod, periodFor } from '../lib/pay'
 import { usePayFor } from '../lib/usePay'
 import { useWork } from '../lib/workStore'
+import { AnimatedMoney } from './AnimatedMoney'
 import { PayPeriodSheet } from './PayPeriodSheet'
 import { Pressable } from './Pressable'
 
@@ -42,7 +43,7 @@ export function PayCard() {
           </>
         ) : (
           <>
-            <span className="big-number">{formatMoney(pay.netCents)}</span>
+            <AnimatedMoney cents={pay.netCents} className="big-number" />
             <span className="muted">
               After tax, estimated
               {pay.grossCents !== null && ` · ${formatMoney(pay.grossCents)} before tax`}

@@ -11,6 +11,7 @@ import { nzDate } from '../lib/nzTime'
 import { limitForWeek } from '../lib/work'
 import { cycleOn } from '../lib/pay'
 import { CategoryForm, FixedCostForm } from './BudgetSettings'
+import { ExportCard } from './ExportCard'
 import { PayCycleForm, TaxForm } from './PaySettings'
 import { HolidayForm, JobForm, LimitForm, PresetForm, VacationForm } from './SettingsSheets'
 
@@ -100,6 +101,8 @@ export function Settings() {
           <Segment label="Appearance" options={themeModes} value={config.theme} onChange={(theme) => update({ theme })} />
           <p className={sync === 'error' ? 'muted text-red' : 'muted'}>{syncText[sync]}</p>
         </section>
+
+        <ExportCard />
 
         <section className="card">
           <p className="card-label">Account</p>
