@@ -15,7 +15,7 @@ import { Pressable } from './Pressable'
 const dayMonth = (date: string) => formatDate(date, { day: 'numeric', month: 'short' })
 const weekdayDate = (date: string) => formatDate(date, { weekday: 'short', day: 'numeric', month: 'short' })
 
-function Line({ label, value, strong, color }: { label: string; value: string; strong?: boolean; color?: string }) {
+export function Line({ label, value, strong, color }: { label: string; value: string; strong?: boolean; color?: string }) {
   return (
     <div className={strong ? 'line line-strong' : 'line'}>
       <span>{label}</span>
@@ -24,23 +24,30 @@ function Line({ label, value, strong, color }: { label: string; value: string; s
   )
 }
 
-export function PayPeriodSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
+type SheetProps = {
+  open: boolean
+  onClose: () => void
+  // A date inside the period to show first. Without it the sheet shows the period of today.
+  startAt?: string
+}
+
+export function PayPeriodSheet({ open, onClose, startAt }: SheetProps) {
   return (
     <BottomSheet open={open} title="Pay period" onClose={onClose}>
-      <PayPeriodView />
+      <PayPeriodView startAt={startAt} />
     </BottomSheet>
   )
 }
 
 // One pay period on one screen. I use it to compare with my payslip.
-function PayPeriodView() {
+function PayPeriodView({ startAt }: { startAt?: string }) {
   const today = nzDate()
   const { config } = useConfig()
   const { ensureLoaded } = useWork()
   const payFor = usePayFor()
   const current = periodFor(today, config.payCycles)
   // Any date inside the period on screen.
-  const [anchor, setAnchor] = useState(today)
+  const [anchor, setAnchor] = useState(startAt ?? today)
   const period = periodFor(anchor, config.payCycles)
   const pay = payFor(period)
   const actual = config.actualPays[period.start] ?? null

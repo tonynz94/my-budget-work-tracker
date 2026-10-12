@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { BudgetCard } from '../components/BudgetCard'
 import { Fab } from '../components/Fab'
 import { Pressable } from '../components/Pressable'
 import { TxSheet } from '../components/TxSheet'
@@ -45,6 +46,10 @@ export function Budget() {
       <h1 className="page-title">Budget</h1>
 
       <div className="card-grid">
+        <div className="card-wide">
+          <BudgetCard />
+        </div>
+
         <section className="card card-wide">
           <div className="calendar-head">
             <Pressable className="icon-button" label="Previous month" onClick={() => setMonth(addMonths(month, -1))}>

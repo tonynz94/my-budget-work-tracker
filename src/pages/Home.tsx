@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BottomSheet } from '../components/BottomSheet'
+import { BudgetCard } from '../components/BudgetCard'
 import { Fab } from '../components/Fab'
 import { PayCard } from '../components/PayCard'
 import { Pressable } from '../components/Pressable'
@@ -9,7 +10,7 @@ import { WeekCard } from '../components/WeekCard'
 import { WorkEntrySheet } from '../components/WorkEntrySheet'
 import { budgetDate, nzDate } from '../lib/nzTime'
 
-// The budget card is empty for now. It gets real data in a later step.
+// The three things I check every day. Money for today, work hours this week and my pay.
 export function Home() {
   const [adding, setAdding] = useState(false)
   const [workDate, setWorkDate] = useState<string | null>(null)
@@ -20,15 +21,9 @@ export function Home() {
       <h1 className="page-title">Home</h1>
 
       <div className="card-grid">
+        <BudgetCard />
         <WeekCard />
         <PayCard />
-
-        <section className="card">
-          <p className="card-label">Left today</p>
-          <p className="big-number">$ –</p>
-          <p className="muted">Budget today – · Spent today –</p>
-          <span className="chip">Step 5</span>
-        </section>
       </div>
 
       <Fab label="Add" onClick={() => setAdding(true)} />

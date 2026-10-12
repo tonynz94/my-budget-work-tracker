@@ -614,6 +614,25 @@ a:focus-visible {
   opacity: 0.3;
 }
 
+/* The result of the last budget period. Red is over and blue is saved. */
+.result {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--fill);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.result-red {
+  color: var(--red);
+}
+
+.result-blue {
+  color: var(--accent);
+}
+
 /* Budget */
 
 .calendar.calendar-plain {
