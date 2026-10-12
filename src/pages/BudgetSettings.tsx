@@ -148,7 +148,8 @@ export function FixedCostForm() {
       start,
       end: end || null,
       // An edit only changes the records that come later. The old ones stay as they are.
-      doneThrough: editing?.doneThrough ?? null,
+      // But a new first date or a new repeat is a new set of dates, so the app makes the missing ones again from the first date.
+      doneThrough: editing && editing.start === start && editing.repeat === repeat ? editing.doneThrough : null,
     }
     update({ fixedCosts: [...config.fixedCosts.filter((item) => item.id !== fixed.id), fixed] })
     clear()
