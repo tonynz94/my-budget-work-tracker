@@ -801,6 +801,25 @@ a:focus-visible {
   color: var(--red);
 }
 
+/* On a phone the calendar card goes closer to the screen edges, so each day is wider. */
+@media (max-width: 899px) {
+  .card-calendar {
+    margin: 0 -10px;
+    padding: 18px 8px;
+  }
+
+  .card-calendar .calendar-head,
+  .card-calendar .day-detail {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .calendar.calendar-money,
+  .calendar-money .calendar-week {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) 52px;
+  }
+}
+
 /* Work calendar */
 
 .card-wide {

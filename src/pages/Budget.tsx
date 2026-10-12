@@ -50,7 +50,7 @@ export function Budget() {
           <BudgetCard />
         </div>
 
-        <section className="card card-wide">
+        <section className="card card-wide card-calendar">
           <div className="calendar-head">
             <Pressable className="icon-button" label="Previous month" onClick={() => setMonth(addMonths(month, -1))}>
               ‹
