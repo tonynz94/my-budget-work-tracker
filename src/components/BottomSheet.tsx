@@ -1,6 +1,7 @@
 import { AnimatePresence, motion, useDragControls } from 'motion/react'
 import { useEffect } from 'react'
 import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 
 type Props = {
   open: boolean
@@ -22,7 +23,9 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
-  return (
+  // The sheet is drawn at the top of the page and not inside the screen that opened it.
+  // So it always covers the window, also when that screen is long and scrolled.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div className="sheet-layer">
@@ -60,6 +63,7 @@ export function BottomSheet({ open, title, onClose, children }: Props) {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }

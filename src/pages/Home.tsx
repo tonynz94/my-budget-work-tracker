@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BottomSheet } from '../components/BottomSheet'
+import { Fab } from '../components/Fab'
 import { PayCard } from '../components/PayCard'
 import { Pressable } from '../components/Pressable'
 import { TxSheet } from '../components/TxSheet'
@@ -30,11 +31,7 @@ export function Home() {
         </section>
       </div>
 
-      <Pressable className="fab" label="Add" onClick={() => setAdding(true)}>
-        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
-          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
-        </svg>
-      </Pressable>
+      <Fab label="Add" onClick={() => setAdding(true)} />
 
       <BottomSheet open={adding} title="Add" onClose={() => setAdding(false)}>
         <div className="list">
