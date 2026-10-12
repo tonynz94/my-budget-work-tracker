@@ -60,3 +60,30 @@ create policy "owner only" on public.work_entries
   to authenticated
   using (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com')
   with check (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com');
+
+-- Step 4. The budget book. One row is one expense or one income.
+-- fixed_id is set when the app made the row from a fixed cost.
+-- The unique rule stops the same fixed cost from being saved twice on one date.
+create table if not exists public.transactions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  tx_date date not null,
+  kind text not null check (kind in ('expense', 'income')),
+  amount_cents integer not null check (amount_cents >= 0),
+  category text not null default '',
+  note text not null default '',
+  fixed_id text,
+  created_at timestamptz not null default now(),
+  unique (user_id, fixed_id, tx_date)
+);
+
+create index if not exists transactions_by_date on public.transactions (user_id, tx_date);
+
+alter table public.transactions enable row level security;
+
+drop policy if exists "owner only" on public.transactions;
+create policy "owner only" on public.transactions
+  for all
+  to authenticated
+  using (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com')
+  with check (user_id = auth.uid() and (auth.jwt() ->> 'email') = 'you@example.com');

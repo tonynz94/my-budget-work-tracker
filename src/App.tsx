@@ -6,9 +6,9 @@ import { TabBar } from './components/TabBar'
 import { useAuth } from './lib/auth'
 import { useConfig } from './lib/config'
 import { useApplyTheme } from './lib/theme'
+import { Budget } from './pages/Budget'
 import { Home } from './pages/Home'
 import { Login } from './pages/Login'
-import { Placeholder } from './pages/Placeholder'
 import { Settings } from './pages/Settings'
 import { Work } from './pages/Work'
 
@@ -59,7 +59,7 @@ export default function App() {
         >
           <Routes location={location}>
             <Route path="/" element={<Home />} />
-            <Route path="/budget" element={<Placeholder title="Budget" text="Expenses, income and fixed costs come here." step="Step 4" />} />
+            <Route path="/budget" element={<Budget />} />
             <Route path="/work" element={<Work />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />

@@ -10,6 +10,7 @@ import { formatDuration, formatMoney } from '../lib/format'
 import { nzDate } from '../lib/nzTime'
 import { limitForWeek } from '../lib/work'
 import { cycleOn } from '../lib/pay'
+import { CategoryForm, FixedCostForm } from './BudgetSettings'
 import { PayCycleForm, TaxForm } from './PaySettings'
 import { HolidayForm, JobForm, LimitForm, PresetForm, VacationForm } from './SettingsSheets'
 
@@ -26,7 +27,7 @@ const syncText: Record<SyncState, string> = {
   error: 'Sync failed. Check the internet and try again.',
 }
 
-type Sheet = 'job' | 'cycle' | 'tax' | 'limit' | 'vacation' | 'holiday' | 'preset'
+type Sheet = 'job' | 'cycle' | 'tax' | 'limit' | 'vacation' | 'holiday' | 'preset' | 'fixed' | 'category'
 
 const sheetTitles: Record<Sheet, string> = {
   job: 'Job',
@@ -36,6 +37,8 @@ const sheetTitles: Record<Sheet, string> = {
   vacation: 'Vacation periods',
   holiday: 'Public holidays',
   preset: 'Presets',
+  fixed: 'Fixed costs',
+  category: 'Categories',
 }
 
 export function Settings() {
@@ -58,6 +61,10 @@ export function Settings() {
     { sheet: 'holiday', value: `x${config.holidayMultiplier}` },
     { sheet: 'preset', value: String(config.presets.length) },
   ]
+  const budgetRows: { sheet: Sheet; value: string }[] = [
+    { sheet: 'fixed', value: String(config.fixedCosts.length) },
+    { sheet: 'category', value: String(config.categories.length) },
+  ]
 
   return (
     <>
@@ -68,6 +75,18 @@ export function Settings() {
           <p className="card-label">Work and pay</p>
           <div className="list">
             {rows.map((row) => (
+              <Pressable key={row.sheet} className="row" onClick={() => setOpen(row.sheet)}>
+                <span>{sheetTitles[row.sheet]}</span>
+                <span className="muted">{row.value} ›</span>
+              </Pressable>
+            ))}
+          </div>
+        </section>
+
+        <section className="card">
+          <p className="card-label">Budget</p>
+          <div className="list">
+            {budgetRows.map((row) => (
               <Pressable key={row.sheet} className="row" onClick={() => setOpen(row.sheet)}>
                 <span>{sheetTitles[row.sheet]}</span>
                 <span className="muted">{row.value} ›</span>
@@ -100,6 +119,8 @@ export function Settings() {
         {shown === 'vacation' && <VacationForm />}
         {shown === 'holiday' && <HolidayForm />}
         {shown === 'preset' && <PresetForm />}
+        {shown === 'fixed' && <FixedCostForm />}
+        {shown === 'category' && <CategoryForm />}
       </BottomSheet>
     </>
   )

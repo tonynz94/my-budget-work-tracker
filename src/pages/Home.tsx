@@ -2,14 +2,17 @@ import { useState } from 'react'
 import { BottomSheet } from '../components/BottomSheet'
 import { PayCard } from '../components/PayCard'
 import { Pressable } from '../components/Pressable'
+import { TxSheet } from '../components/TxSheet'
+import type { TxTarget } from '../components/TxSheet'
 import { WeekCard } from '../components/WeekCard'
 import { WorkEntrySheet } from '../components/WorkEntrySheet'
-import { nzDate } from '../lib/nzTime'
+import { budgetDate, nzDate } from '../lib/nzTime'
 
 // The budget card is empty for now. It gets real data in a later step.
 export function Home() {
   const [adding, setAdding] = useState(false)
   const [workDate, setWorkDate] = useState<string | null>(null)
+  const [expense, setExpense] = useState<TxTarget | null>(null)
 
   return (
     <>
@@ -17,7 +20,6 @@ export function Home() {
 
       <div className="card-grid">
         <WeekCard />
-
         <PayCard />
 
         <section className="card">
@@ -40,20 +42,27 @@ export function Home() {
             className="row"
             onClick={() => {
               setAdding(false)
+              setExpense({ date: budgetDate() })
+            }}
+          >
+            <span>Expense</span>
+            <span className="muted">Today</span>
+          </Pressable>
+          <Pressable
+            className="row"
+            onClick={() => {
+              setAdding(false)
               setWorkDate(nzDate())
             }}
           >
             <span>Work hours</span>
             <span className="muted">Today</span>
           </Pressable>
-          <Pressable className="row" disabled>
-            <span>Expense</span>
-            <span className="chip">Step 4</span>
-          </Pressable>
         </div>
       </BottomSheet>
 
       <WorkEntrySheet date={workDate} onClose={() => setWorkDate(null)} />
+      <TxSheet target={expense} onClose={() => setExpense(null)} />
     </>
   )
 }

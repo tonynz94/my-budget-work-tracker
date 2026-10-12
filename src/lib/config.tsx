@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useAuth } from './auth'
+import type { FixedCost } from './fixed'
 import type { CustomHoliday } from './holidays'
 import { DEFAULT_ACC_RATE, defaultBrackets } from './pay'
 import type { PayCycle, RateChange, RateMode, TaxBracket } from './pay'
@@ -40,6 +41,8 @@ export type Config = {
   accRate: number
   // The money that really came in, in cents. The key is the first day of the pay period.
   actualPays: Record<string, number>
+  categories: string[]
+  fixedCosts: FixedCost[]
 }
 
 export const defaultConfig: Config = {
@@ -58,6 +61,8 @@ export const defaultConfig: Config = {
   taxBrackets: defaultBrackets,
   accRate: DEFAULT_ACC_RATE,
   actualPays: {},
+  categories: ['Food', 'Groceries', 'Transport', 'Rent', 'Phone', 'Shopping', 'Fun', 'Other'],
+  fixedCosts: [],
 }
 
 export type SyncState = 'local' | 'syncing' | 'synced' | 'error'

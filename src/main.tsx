@@ -5,6 +5,8 @@ import App from './App'
 import './index.css'
 import { AuthProvider } from './lib/auth'
 import { ConfigProvider } from './lib/config'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { TxProvider } from './lib/txStore'
 import { WorkProvider } from './lib/workStore'
 import { registerSW } from 'virtual:pwa-register'
 
@@ -21,14 +23,18 @@ registerSW({
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <ConfigProvider>
-          <WorkProvider>
-            <App />
-          </WorkProvider>
-        </ConfigProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <ConfigProvider>
+            <WorkProvider>
+              <TxProvider>
+                <App />
+              </TxProvider>
+            </WorkProvider>
+          </ConfigProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 )

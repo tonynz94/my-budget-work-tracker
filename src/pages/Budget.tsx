@@ -1,0 +1,141 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Pressable } from '../components/Pressable'
+import { TxSheet } from '../components/TxSheet'
+import type { TxTarget } from '../components/TxSheet'
+import { addDays, addMonths, formatDate, monthGrid, monthStart } from '../lib/dates'
+import { formatMoney, formatShortMoney } from '../lib/format'
+import { spentOn, sumLedger } from '../lib/ledger'
+import { budgetDate } from '../lib/nzTime'
+import { useTx } from '../lib/txStore'
+
+const dayNames = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+export function Budget() {
+  const today = budgetDate()
+  const { ledger, ensureLoaded, error } = useTx()
+  const [month, setMonth] = useState(monthStart(today))
+  const [selected, setSelected] = useState(today)
+  const [target, setTarget] = useState<TxTarget | null>(null)
+
+  const weeks = useMemo(() => monthGrid(month), [month])
+  const gridStart = weeks[0][0]
+  const monthEnd = addDays(addMonths(month, 1), -1)
+  const sum = useMemo(() => sumLedger(ledger, month, monthEnd), [ledger, month, monthEnd])
+  const biggest = sum.byCategory[0]?.cents ?? 0
+  const items = ledger.get(selected) ?? []
+
+  useEffect(() => {
+    ensureLoaded(gridStart)
+  }, [gridStart, ensureLoaded])
+
+  return (
+    <>
+      <h1 className="page-title">Budget</h1>
+
+      <div className="card-grid">
+        <section className="card card-wide">
+          <div className="calendar-head">
+            <Pressable className="icon-button" label="Previous month" onClick={() => setMonth(addMonths(month, -1))}>
+              ‹
+            </Pressable>
+            <p className="calendar-title">{formatDate(month, { month: 'long', year: 'numeric' })}</p>
+            <Pressable className="icon-button" label="Next month" onClick={() => setMonth(addMonths(month, 1))}>
+              ›
+            </Pressable>
+          </div>
+
+          <div className="calendar calendar-plain">
+            {dayNames.map((name, i) => (
+              <span key={i} className="calendar-day-name">
+                {name}
+              </span>
+            ))}
+            {weeks.flat().map((date) => {
+              const spent = spentOn(ledger, date)
+              const classes = ['day']
+              if (date.slice(0, 7) !== month.slice(0, 7)) classes.push('day-other')
+              if (date === today) classes.push('day-today')
+              if (date === selected) classes.push('day-selected')
+              return (
+                <button key={date} type="button" className={classes.join(' ')} onClick={() => setSelected(date)}>
+                  <span className="day-number">{Number(date.slice(8))}</span>
+                  <span className="day-hours day-money">{spent > 0 ? formatShortMoney(spent) : ''}</span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="day-detail">
+            <div className="calendar-head">
+              <p className="card-value">{formatDate(selected, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+              <button type="button" className="small-button small-button-fill" onClick={() => setTarget({ date: selected })}>
+                Add
+              </button>
+            </div>
+            {items.length === 0 && <p className="muted">Nothing on this day.</p>}
+            {items.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="item item-button"
+                disabled={item.locked}
+                onClick={() => setTarget({ date: item.date, item })}
+              >
+                <span>
+                  <span className="item-title">{item.category}</span>
+                  {(item.note || item.locked) && (
+                    <span className="muted item-sub">{item.locked ? `Pay for ${item.note}` : item.note}</span>
+                  )}
+                </span>
+                <span className={item.kind === 'income' ? 'item-title text-blue' : 'item-title'}>
+                  {item.kind === 'income' ? '+ ' : ''}
+                  {formatMoney(item.cents)}
+                </span>
+              </button>
+            ))}
+          </div>
+          {error && <p className="text-red">Could not load the records. {error}</p>}
+        </section>
+
+        <section className="card">
+          <p className="card-label">{formatDate(month, { month: 'long' })}</p>
+          <p className="big-number">{formatMoney(sum.spent)}</p>
+          <p className="muted">Spent · {formatMoney(sum.income)} income</p>
+        </section>
+
+        <section className="card">
+          <p className="card-label">Spending by category</p>
+          {sum.byCategory.length === 0 && <p className="muted">No spending this month.</p>}
+          <div className="bars">
+            {sum.byCategory.map((row) => (
+              <div key={row.category} className="bar-row" title={`${row.category} ${formatMoney(row.cents)}`}>
+                <div className="bar-text">
+                  <span>{row.category}</span>
+                  <span>{formatMoney(row.cents)}</span>
+                </div>
+                <div className="bar-track">
+                  <div className="bar-fill" style={{ width: `${(row.cents / biggest) * 100}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <Pressable
+        className="fab"
+        label="Add an expense for today"
+        onClick={() => {
+          setSelected(today)
+          setTarget({ date: today })
+        }}
+      >
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+          <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
+        </svg>
+      </Pressable>
+
+      <TxSheet target={target} onClose={() => setTarget(null)} />
+    </>
+  )
+}

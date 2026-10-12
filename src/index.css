@@ -612,6 +612,86 @@ a:focus-visible {
   opacity: 0.3;
 }
 
+/* Budget */
+
+.calendar.calendar-plain {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.day-money {
+  color: var(--text);
+}
+
+.input-big {
+  height: 64px;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.chip-off {
+  background: var(--fill);
+  color: var(--text);
+}
+
+.chip-on {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.item-button {
+  width: 100%;
+  margin-top: 8px;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.item-sub {
+  display: block;
+}
+
+.item-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.small-button-fill {
+  background: var(--accent-soft);
+}
+
+/* Spending by category. One color, the longest bar is the biggest category. */
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.bar-text {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-track {
+  height: 8px;
+  margin-top: 6px;
+  border-radius: 4px;
+  background: var(--fill);
+}
+
+.bar-fill {
+  min-width: 4px;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
 /* Week progress */
 
 .progress {
