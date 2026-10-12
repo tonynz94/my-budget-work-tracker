@@ -34,8 +34,15 @@ export function BudgetCard() {
       <Pressable className="card card-button" onClick={() => setOpen('summary')}>
         <span className="card-label">Left today</span>
         <AnimatedMoney cents={summary.leftToday} className={summary.leftToday < 0 ? 'big-number text-red' : 'big-number'} />
-        <span className="muted">
-          Budget today {formatMoney(summary.todayBudget)} · Spent today {formatMoney(summary.spentToday)}
+        <span className="today-stats">
+          <span className="today-stat">
+            <span className="muted">Budget today</span>
+            <span className="card-value text-green">{formatMoney(summary.todayBudget)}</span>
+          </span>
+          <span className="today-stat">
+            <span className="muted">Spent today</span>
+            <span className="card-value text-blue">{formatMoney(summary.spentToday)}</span>
+          </span>
         </span>
         <span className="card-divider" />
         <span className={summary.leftInPeriod < 0 ? 'card-value text-red' : 'card-value'}>

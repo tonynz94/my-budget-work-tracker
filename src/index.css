@@ -238,6 +238,20 @@ a:focus-visible {
   color: var(--muted);
 }
 
+/* The two small numbers under the big number on the budget card. */
+.today-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 4px;
+}
+
+.today-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
 .text-red {
   color: var(--red);
 }
