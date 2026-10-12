@@ -22,6 +22,20 @@ export const repeatLabels: Record<Repeat, string> = {
   monthly: 'Every month',
 }
 
+// The fixed costs that will come on each date, from one date to another date.
+// These are not in the budget book yet. The calendar shows them as planned.
+export function plannedCosts(fixedCosts: FixedCost[], from: string, to: string): Map<string, FixedCost[]> {
+  const planned = new Map<string, FixedCost[]>()
+  for (const fixed of fixedCosts) {
+    for (const date of occurrences(fixed, from, to)) {
+      const list = planned.get(date)
+      if (list) list.push(fixed)
+      else planned.set(date, [fixed])
+    }
+  }
+  return planned
+}
+
 // The dates this cost is paid, from one date to another date. Both ends are included.
 export function occurrences(fixed: Pick<FixedCost, 'repeat' | 'start' | 'end'>, from: string, to: string): string[] {
   const first = from > fixed.start ? from : fixed.start

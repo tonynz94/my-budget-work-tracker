@@ -3,7 +3,9 @@ import { Fab } from '../components/Fab'
 import { Pressable } from '../components/Pressable'
 import { TxSheet } from '../components/TxSheet'
 import type { TxTarget } from '../components/TxSheet'
+import { useConfig } from '../lib/config'
 import { addDays, addMonths, formatDate, monthGrid, monthStart } from '../lib/dates'
+import { plannedCosts } from '../lib/fixed'
 import { formatMoney, formatShortMoney } from '../lib/format'
 import { spentOn, sumLedger } from '../lib/ledger'
 import { budgetDate } from '../lib/nzTime'
@@ -24,6 +26,15 @@ export function Budget() {
   const sum = useMemo(() => sumLedger(ledger, month, monthEnd), [ledger, month, monthEnd])
   const biggest = sum.byCategory[0]?.cents ?? 0
   const items = ledger.get(selected) ?? []
+
+  // The fixed costs that come after today. They are not in the budget book yet.
+  const { config } = useConfig()
+  const gridEnd = weeks[weeks.length - 1][6]
+  const planned = useMemo(
+    () => plannedCosts(config.fixedCosts, addDays(today, 1), gridEnd),
+    [config.fixedCosts, today, gridEnd],
+  )
+  const plannedItems = planned.get(selected) ?? []
 
   useEffect(() => {
     ensureLoaded(gridStart)
@@ -53,6 +64,7 @@ export function Budget() {
             ))}
             {weeks.flat().map((date) => {
               const spent = spentOn(ledger, date)
+              const coming = (planned.get(date) ?? []).reduce((total, fixed) => total + fixed.cents, 0)
               const classes = ['day']
               if (date.slice(0, 7) !== month.slice(0, 7)) classes.push('day-other')
               if (date === today) classes.push('day-today')
@@ -60,7 +72,11 @@ export function Budget() {
               return (
                 <button key={date} type="button" className={classes.join(' ')} onClick={() => setSelected(date)}>
                   <span className="day-number">{Number(date.slice(8))}</span>
-                  <span className="day-hours day-money">{spent > 0 ? formatShortMoney(spent) : ''}</span>
+                  {spent > 0 || coming === 0 ? (
+                    <span className="day-hours day-money">{spent > 0 ? formatShortMoney(spent) : ''}</span>
+                  ) : (
+                    <span className="day-hours day-planned">{formatShortMoney(coming)}</span>
+                  )}
                 </button>
               )
             })}
@@ -73,7 +89,16 @@ export function Budget() {
                 Add
               </button>
             </div>
-            {items.length === 0 && <p className="muted">Nothing on this day.</p>}
+            {items.length === 0 && plannedItems.length === 0 && <p className="muted">Nothing on this day.</p>}
+            {plannedItems.map((fixed) => (
+              <div key={fixed.id} className="item item-planned">
+                <span>
+                  <span className="item-title">{fixed.category}</span>
+                  <span className="muted item-sub">{fixed.name} · Planned fixed cost</span>
+                </span>
+                <span className="item-title">{formatMoney(fixed.cents)}</span>
+              </div>
+            ))}
             {items.map((item) => (
               <button
                 key={item.id}

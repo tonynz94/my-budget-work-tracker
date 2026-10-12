@@ -620,8 +620,20 @@ a:focus-visible {
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
-.day-money {
+.day-hours.day-money {
   color: var(--text);
+}
+
+/* A fixed cost that comes later. It is gray because it is not spent yet. */
+.day-hours.day-planned {
+  color: var(--muted);
+}
+
+.item-planned {
+  margin-top: 8px;
+  background: none;
+  border: 1px dashed var(--line);
+  color: var(--muted);
 }
 
 .input-big {

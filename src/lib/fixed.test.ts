@@ -1,5 +1,22 @@
 import { expect, test } from 'vitest'
-import { occurrences } from './fixed'
+import { occurrences, plannedCosts } from './fixed'
+import type { FixedCost } from './fixed'
+
+test('the calendar gets the fixed costs that will come later', () => {
+  const rent: FixedCost = {
+    id: 'rent',
+    name: 'Rent',
+    cents: 250_00,
+    category: 'Rent',
+    repeat: 'weekly',
+    start: '2026-10-12',
+    end: null,
+    doneThrough: '2026-10-12',
+  }
+  const planned = plannedCosts([rent], '2026-10-13', '2026-11-01')
+  expect([...planned.keys()]).toEqual(['2026-10-19', '2026-10-26'])
+  expect(planned.get('2026-10-19')?.[0].name).toBe('Rent')
+})
 
 test('a weekly cost comes every 7 days from its start', () => {
   const rent = { repeat: 'weekly' as const, start: '2026-10-01', end: null }
