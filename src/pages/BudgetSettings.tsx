@@ -209,6 +209,7 @@ export function FixedCostForm() {
           <input className="input" type="date" value={end} onChange={(event) => setEnd(event.target.value)} />
         </Field>
       </div>
+      <p className="muted">Leave the last date empty if I do not know when it ends. Then it keeps going, and I can add the date later.</p>
       {error && <p className="text-red form-note">{error}</p>}
       <Pressable className="button button-primary" onClick={save}>
         {editing ? 'Save' : 'Add fixed cost'}
