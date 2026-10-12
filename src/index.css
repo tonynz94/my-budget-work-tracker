@@ -590,6 +590,37 @@ a:focus-visible {
   font-weight: 700;
 }
 
+/* A line I can tap to see its records. */
+.line-button {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  color: inherit;
+  text-align: left;
+}
+
+.line-arrow {
+  color: var(--accent);
+  font-size: 16px;
+}
+
+.line-details {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.line-detail {
+  font-size: 13px;
+}
+
+.line-planned {
+  color: var(--muted);
+}
+
 .item-right {
   text-align: right;
   font-variant-numeric: tabular-nums;

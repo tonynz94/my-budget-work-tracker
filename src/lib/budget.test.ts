@@ -112,6 +112,26 @@ test('a fixed cost is taken off one time and is not daily spending', () => {
   expect(summary.fixedCents).toBe(500_00)
   expect(summary.spentBefore).toBe(0)
   expect(summary.available).toBe(300_00)
+  // The list behind the number shows the record of 12 October and the planned one of 19 October.
+  expect(summary.fixedLines.map((line) => [line.date, line.cents, line.planned])).toEqual([
+    ['2026-10-12', 250_00, false],
+    ['2026-10-19', 250_00, true],
+  ])
+})
+
+test('the lists behind the numbers add up to the numbers', () => {
+  const ledger = buildLedger(
+    [tx('2026-10-12', 8_00), tx('2026-10-13', 12_50), tx('2026-10-13', 30_00, 'income'), tx('2026-10-20', 99_00)],
+    {},
+    [],
+  )
+  const summary = budgetSummary(period, 800_00, ledger, [rent()], '2026-10-13')
+  const total = (lines: { cents: number }[]) => lines.reduce((sum, line) => sum + line.cents, 0)
+  expect(total(summary.spentLines)).toBe(summary.spentTotal)
+  expect(total(summary.fixedLines)).toBe(summary.fixedCents)
+  expect(total(summary.incomeLines)).toBe(summary.manualIncome)
+  // Money with a date after today is not spent yet.
+  expect(summary.spentLines.map((line) => line.date)).toEqual(['2026-10-12', '2026-10-13'])
 })
 
 test('a monthly fixed cost only counts in the period that has its date', () => {

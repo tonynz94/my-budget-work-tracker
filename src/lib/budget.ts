@@ -42,7 +42,20 @@ export function previousBudgetPeriod(period: BudgetPeriod, cycles: PayCycle[]): 
   return budgetPeriodFor(addDays(period.start, -1), cycles)
 }
 
+// One record behind a number of the budget, so I can see where the number comes from.
+export type BudgetLine = {
+  date: string
+  label: string
+  cents: number
+  // True for a fixed cost that comes later and is not in the budget book yet.
+  planned: boolean
+}
+
 export type BudgetSummary = {
+  // The records behind fixedCents, spentTotal and manualIncome, by date.
+  fixedLines: BudgetLine[]
+  spentLines: BudgetLine[]
+  incomeLines: BudgetLine[]
   payCents: number
   manualIncome: number
   fixedCents: number
@@ -70,19 +83,26 @@ export function budgetSummary(
   let fixedCents = 0
   let spentBefore = 0
   let spentToday = 0
+  const fixedLines: BudgetLine[] = []
+  const spentLines: BudgetLine[] = []
+  const incomeLines: BudgetLine[] = []
 
   for (let date = period.start; date <= period.end; date = addDays(date, 1)) {
     for (const item of ledger.get(date) ?? []) {
+      const label = item.note ? `${item.category} · ${item.note}` : item.category
       if (item.kind === 'income') {
         // My pay is already counted as payCents, so it is not added a second time.
-        if (!item.locked) manualIncome += item.cents
+        if (item.locked) continue
+        manualIncome += item.cents
+        incomeLines.push({ date, label, cents: item.cents, planned: false })
       } else if (item.fixedId) {
         // A fixed cost is taken off the whole period one time. It is not counted as daily spending.
         fixedCents += item.cents
-      } else if (date < today) {
-        spentBefore += item.cents
-      } else if (date === today) {
-        spentToday += item.cents
+        fixedLines.push({ date, label, cents: item.cents, planned: false })
+      } else if (date <= today) {
+        if (date < today) spentBefore += item.cents
+        else spentToday += item.cents
+        spentLines.push({ date, label, cents: item.cents, planned: false })
       }
     }
   }
@@ -91,8 +111,12 @@ export function budgetSummary(
   for (const fixed of fixedCosts) {
     const notMadeFrom = fixed.doneThrough ? addDays(fixed.doneThrough, 1) : fixed.start
     const from = notMadeFrom > period.start ? notMadeFrom : period.start
-    fixedCents += occurrences(fixed, from, period.end).length * fixed.cents
+    for (const date of occurrences(fixed, from, period.end)) {
+      fixedCents += fixed.cents
+      fixedLines.push({ date, label: `${fixed.category} · ${fixed.name}`, cents: fixed.cents, planned: true })
+    }
   }
+  fixedLines.sort((a, b) => a.date.localeCompare(b.date))
 
   const available = payCents + manualIncome - fixedCents
   const daysLeft = today <= period.end ? daysBetween(today < period.start ? period.start : today, period.end) + 1 : 0
@@ -100,6 +124,9 @@ export function budgetSummary(
   const spentTotal = spentBefore + spentToday
 
   return {
+    fixedLines,
+    spentLines,
+    incomeLines,
     payCents,
     manualIncome,
     fixedCents,

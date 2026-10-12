@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { BudgetLine } from '../lib/budget'
 import { formatDate } from '../lib/dates'
 import { formatMoney } from '../lib/format'
 import { useBudget } from '../lib/useBudget'
@@ -74,16 +75,42 @@ export function BudgetCard() {
   )
 }
 
+type Detail = 'income' | 'fixed' | 'spent'
+
 function PeriodLines({ view, title }: { view: BudgetView; title: string }) {
   const { summary } = view
+  // The line I tapped. Its records show under it, so I can see where the number comes from.
+  const [open, setOpen] = useState<Detail | null>(null)
+  const toggle = (detail: Detail) => setOpen(open === detail ? null : detail)
+
   return (
     <div className="lines">
       <Line label={title} value="" />
       <Line label={view.estimated ? 'Pay, estimated' : 'Pay received'} value={formatMoney(summary.payCents)} />
-      {summary.manualIncome > 0 && <Line label="Other income" value={`+ ${formatMoney(summary.manualIncome)}`} />}
-      <Line label="Fixed costs" value={`- ${formatMoney(summary.fixedCents)}`} />
+      {summary.manualIncome > 0 && (
+        <DetailLine
+          label="Other income"
+          value={`+ ${formatMoney(summary.manualIncome)}`}
+          lines={summary.incomeLines}
+          open={open === 'income'}
+          onToggle={() => toggle('income')}
+        />
+      )}
+      <DetailLine
+        label="Fixed costs"
+        value={`- ${formatMoney(summary.fixedCents)}`}
+        lines={summary.fixedLines}
+        open={open === 'fixed'}
+        onToggle={() => toggle('fixed')}
+      />
       <Line label="Money to spend" value={formatMoney(summary.available)} strong />
-      <Line label="Spent" value={`- ${formatMoney(summary.spentTotal)}`} />
+      <DetailLine
+        label="Spent"
+        value={`- ${formatMoney(summary.spentTotal)}`}
+        lines={summary.spentLines}
+        open={open === 'spent'}
+        onToggle={() => toggle('spent')}
+      />
       <Line
         label="Left"
         value={formatMoney(summary.leftInPeriod)}
@@ -91,5 +118,35 @@ function PeriodLines({ view, title }: { view: BudgetView; title: string }) {
         color={summary.leftInPeriod < 0 ? 'text-red' : undefined}
       />
     </div>
+  )
+}
+
+type DetailLineProps = { label: string; value: string; lines: BudgetLine[]; open: boolean; onToggle: () => void }
+
+// A line of the summary that opens a list of its records when I tap it.
+function DetailLine({ label, value, lines, open, onToggle }: DetailLineProps) {
+  return (
+    <>
+      <button type="button" className="line line-button" aria-expanded={open} onClick={onToggle}>
+        <span>
+          {label} <span className="line-arrow">{open ? '▾' : '▸'}</span>
+        </span>
+        <span>{value}</span>
+      </button>
+      {open && (
+        <div className="line-details">
+          {lines.length === 0 && <p className="muted">Nothing here.</p>}
+          {lines.map((line, i) => (
+            <div key={i} className={line.planned ? 'line line-detail line-planned' : 'line line-detail'}>
+              <span>
+                {formatDate(line.date, { weekday: 'short', day: 'numeric', month: 'short' })} · {line.label}
+                {line.planned && ' · planned'}
+              </span>
+              <span>{formatMoney(line.cents)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   )
 }
