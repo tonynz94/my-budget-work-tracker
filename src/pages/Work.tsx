@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { PayCard } from '../components/PayCard'
 import { Pressable } from '../components/Pressable'
 import { WeekCard } from '../components/WeekCard'
 import { WorkEntrySheet } from '../components/WorkEntrySheet'
@@ -55,6 +56,7 @@ export function Work() {
 
       <div className="card-grid">
         <WeekCard />
+        <PayCard />
 
         <section className="card card-wide">
           <div className="calendar-head">

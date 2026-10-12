@@ -548,6 +548,70 @@ a:focus-visible {
   line-height: 1;
 }
 
+/* Pay */
+
+.card-button {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+
+.card-divider {
+  width: 100%;
+  height: 1px;
+  margin: 8px 0;
+  background: var(--line);
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--fill);
+}
+
+.line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.line-strong {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.item-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-button {
+  align-self: flex-start;
+  padding: 4px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.text-blue {
+  color: var(--accent);
+}
+
+.center {
+  text-align: center;
+}
+
+.icon-button:disabled {
+  opacity: 0.3;
+}
+
 /* Week progress */
 
 .progress {

@@ -2,16 +2,14 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import type { ReactNode } from 'react'
 import { useAuth } from './auth'
 import type { CustomHoliday } from './holidays'
+import { DEFAULT_ACC_RATE, defaultBrackets } from './pay'
+import type { PayCycle, RateChange, RateMode, TaxBracket } from './pay'
 import { supabase } from './supabase'
 import type { LimitChange, Vacation } from './work'
 
+export type { RateChange, RateMode }
+
 export type ThemeMode = 'system' | 'light' | 'dark'
-
-// 'gross' is before tax and 'net' is after tax.
-export type RateMode = 'gross' | 'net'
-
-// A new hourly rate starts from a date. Older records keep the rate they had.
-export type RateChange = { from: string; cents: number; mode: RateMode }
 
 // A saved shift. It has start and end, or it has a total.
 export type Preset = {
@@ -35,6 +33,13 @@ export type Config = {
   holidayMultiplier: number
   customHolidays: CustomHoliday[]
   removedHolidays: string[]
+  // Empty means the default cycle. That is 2 weeks, paid 4 days after the period ends.
+  payCycles: PayCycle[]
+  taxCode: string
+  taxBrackets: TaxBracket[]
+  accRate: number
+  // The money that really came in, in cents. The key is the first day of the pay period.
+  actualPays: Record<string, number>
 }
 
 export const defaultConfig: Config = {
@@ -48,6 +53,11 @@ export const defaultConfig: Config = {
   holidayMultiplier: 1.5,
   customHolidays: [],
   removedHolidays: [],
+  payCycles: [],
+  taxCode: 'M',
+  taxBrackets: defaultBrackets,
+  accRate: DEFAULT_ACC_RATE,
+  actualPays: {},
 }
 
 export type SyncState = 'local' | 'syncing' | 'synced' | 'error'

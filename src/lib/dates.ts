@@ -24,6 +24,11 @@ export function addDays(date: string, days: number): string {
   return fromTime(toTime(date) + days * DAY_MS)
 }
 
+// How many days it is from one date to a later date.
+export function daysBetween(from: string, to: string): number {
+  return Math.round((toTime(to) - toTime(from)) / DAY_MS)
+}
+
 // Monday is 0 and Sunday is 6.
 export function weekday(date: string): number {
   return (new Date(toTime(date)).getUTCDay() + 6) % 7
