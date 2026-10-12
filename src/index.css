@@ -10,6 +10,7 @@
   --on-accent: #ffffff;
   --red: #f04452;
   --yellow: #ffb331;
+  --green: #029e5f;
   --shadow: 0 8px 24px rgba(0, 27, 55, 0.1);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -29,6 +30,7 @@
   --on-accent: #ffffff;
   --red: #f66570;
   --yellow: #ffc45c;
+  --green: #3ddc97;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   color-scheme: dark;
 }
@@ -606,6 +608,10 @@ a:focus-visible {
   color: var(--accent);
 }
 
+.text-green {
+  color: var(--green);
+}
+
 .center {
   text-align: center;
 }
@@ -635,12 +641,47 @@ a:focus-visible {
 
 /* Budget */
 
-.calendar.calendar-plain {
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+/* Money needs more room than hours, so the week column is wider and the numbers are smaller. */
+.calendar.calendar-money,
+.calendar-money .calendar-week {
+  grid-template-columns: repeat(7, minmax(0, 1fr)) 58px;
 }
 
-.day-hours.day-money {
-  color: var(--text);
+.calendar-money .day-hours,
+.calendar-money .week-total {
+  font-size: 10px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+
+/* A laptop has room for bigger numbers. */
+@media (min-width: 900px) {
+  .calendar.calendar-money,
+  .calendar-money .calendar-week {
+    grid-template-columns: repeat(7, minmax(0, 1fr)) 96px;
+  }
+
+  .calendar-money .day-hours,
+  .calendar-money .week-total {
+    font-size: 13px;
+    letter-spacing: 0;
+  }
+}
+
+/* In the budget calendar, money I spent is blue and money that came in is green. */
+.day-hours.day-money,
+.week-money .day-money {
+  color: var(--accent);
+}
+
+.day-hours.day-income,
+.week-money .day-income {
+  color: var(--green);
+}
+
+.week-money {
+  align-content: center;
+  gap: 2px;
 }
 
 /* A fixed cost that comes later. It is gray because it is not spent yet. */

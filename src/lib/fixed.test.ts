@@ -1,5 +1,14 @@
 import { expect, test } from 'vitest'
-import { occurrences, plannedCosts } from './fixed'
+import { occurrences, plannedCosts, repeatText } from './fixed'
+
+test('a weekly cost repeats on the weekday of its first date', () => {
+  // 15 October 2026 is a Thursday.
+  const cost = { repeat: 'weekly' as const, start: '2026-10-15', end: null }
+  expect(occurrences(cost, '2026-10-12', '2026-11-01')).toEqual(['2026-10-15', '2026-10-22', '2026-10-29'])
+  expect(repeatText(cost)).toBe('Every week on Thursday')
+  expect(repeatText({ repeat: 'fortnightly', start: '2026-10-12' })).toBe('Every 2 weeks on Monday')
+  expect(repeatText({ repeat: 'monthly', start: '2026-10-31' })).toBe('Every month on day 31')
+})
 import type { FixedCost } from './fixed'
 
 test('the calendar gets the fixed costs that will come later', () => {

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { buildLedger, spentOn, sumLedger } from './ledger'
+import { buildLedger, incomeOn, spentOn, sumLedger } from './ledger'
 import type { Tx } from './ledger'
 
 function tx(id: string, date: string, kind: Tx['kind'], cents: number, category = 'Food'): Tx {
@@ -19,6 +19,8 @@ test('the day total has only the money I spent', () => {
   expect(spentOn(ledger, '2026-10-12')).toBe(20_50)
   expect(spentOn(ledger, '2026-10-13')).toBe(30_00)
   expect(spentOn(ledger, '2026-10-14')).toBe(0)
+  expect(incomeOn(ledger, '2026-10-13')).toBe(50_00)
+  expect(incomeOn(ledger, '2026-10-12')).toBe(0)
 })
 
 test('the totals for a month, with the biggest category first', () => {

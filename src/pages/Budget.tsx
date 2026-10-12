@@ -7,8 +7,8 @@ import type { TxTarget } from '../components/TxSheet'
 import { useConfig } from '../lib/config'
 import { addDays, addMonths, formatDate, monthGrid, monthStart } from '../lib/dates'
 import { plannedCosts } from '../lib/fixed'
-import { formatMoney, formatShortMoney } from '../lib/format'
-import { spentOn, sumLedger } from '../lib/ledger'
+import { formatMoney, formatCalendarMoney } from '../lib/format'
+import { incomeOn, spentOn, sumLedger } from '../lib/ledger'
 import { budgetDate } from '../lib/nzTime'
 import { useTx } from '../lib/txStore'
 
@@ -61,28 +61,45 @@ export function Budget() {
             </Pressable>
           </div>
 
-          <div className="calendar calendar-plain">
+          <div className="calendar calendar-money">
             {dayNames.map((name, i) => (
               <span key={i} className="calendar-day-name">
                 {name}
               </span>
             ))}
-            {weeks.flat().map((date) => {
-              const spent = spentOn(ledger, date)
-              const coming = (planned.get(date) ?? []).reduce((total, fixed) => total + fixed.cents, 0)
-              const classes = ['day']
-              if (date.slice(0, 7) !== month.slice(0, 7)) classes.push('day-other')
-              if (date === today) classes.push('day-today')
-              if (date === selected) classes.push('day-selected')
+            <span className="calendar-day-name">Week</span>
+
+            {weeks.map((week) => {
+              // The money I spent from Monday to Sunday. Planned costs are not in it.
+              const weekSpent = week.reduce((total, date) => total + spentOn(ledger, date), 0)
+              const weekIncome = week.reduce((total, date) => total + incomeOn(ledger, date), 0)
               return (
-                <button key={date} type="button" className={classes.join(' ')} onClick={() => setSelected(date)}>
-                  <span className="day-number">{Number(date.slice(8))}</span>
-                  {spent > 0 || coming === 0 ? (
-                    <span className="day-hours day-money">{spent > 0 ? formatShortMoney(spent) : ''}</span>
-                  ) : (
-                    <span className="day-hours day-planned">{formatShortMoney(coming)}</span>
-                  )}
-                </button>
+                <div key={week[0]} className="calendar-week">
+                  {week.map((date) => {
+                    const spent = spentOn(ledger, date)
+                    const income = incomeOn(ledger, date)
+                    const coming = (planned.get(date) ?? []).reduce((total, fixed) => total + fixed.cents, 0)
+                    const classes = ['day']
+                    if (date.slice(0, 7) !== month.slice(0, 7)) classes.push('day-other')
+                    if (date === today) classes.push('day-today')
+                    if (date === selected) classes.push('day-selected')
+                    return (
+                      <button key={date} type="button" className={classes.join(' ')} onClick={() => setSelected(date)}>
+                        <span className="day-number">{Number(date.slice(8))}</span>
+                        {spent > 0 || coming === 0 ? (
+                          <span className="day-hours day-money">{spent > 0 ? formatCalendarMoney(spent) : ''}</span>
+                        ) : (
+                          <span className="day-hours day-planned">{formatCalendarMoney(coming)}</span>
+                        )}
+                        {income > 0 && <span className="day-hours day-income">+{formatCalendarMoney(income)}</span>}
+                      </button>
+                    )
+                  })}
+                  <span className="week-total week-money">
+                    {weekSpent > 0 && <span className="day-money">{formatCalendarMoney(weekSpent)}</span>}
+                    {weekIncome > 0 && <span className="day-income">+{formatCalendarMoney(weekIncome)}</span>}
+                  </span>
+                </div>
               )
             })}
           </div>
@@ -118,7 +135,7 @@ export function Budget() {
                     <span className="muted item-sub">{item.locked ? `Pay for ${item.note}` : item.note}</span>
                   )}
                 </span>
-                <span className={item.kind === 'income' ? 'item-title text-blue' : 'item-title'}>
+                <span className={item.kind === 'income' ? 'item-title text-green' : 'item-title'}>
                   {item.kind === 'income' ? '+ ' : ''}
                   {formatMoney(item.cents)}
                 </span>

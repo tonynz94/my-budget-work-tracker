@@ -3,7 +3,7 @@ import { Field, Segment } from '../components/Form'
 import { Pressable } from '../components/Pressable'
 import { useConfig } from '../lib/config'
 import { formatDate } from '../lib/dates'
-import { repeatLabels } from '../lib/fixed'
+import { repeatText } from '../lib/fixed'
 import type { FixedCost, Repeat } from '../lib/fixed'
 import { formatMoney, parseMoney } from '../lib/format'
 import { budgetDate } from '../lib/nzTime'
@@ -172,7 +172,7 @@ export function FixedCostForm() {
               {fixed.name} · {formatMoney(fixed.cents)}
             </p>
             <p className="muted">
-              {repeatLabels[fixed.repeat]} · {fixed.category} · from {shortDate(fixed.start)}
+              {repeatText(fixed)} · {fixed.category} · from {shortDate(fixed.start)}
               {fixed.end ? ` to ${shortDate(fixed.end)}` : ''}
             </p>
           </div>
@@ -209,7 +209,15 @@ export function FixedCostForm() {
           <input className="input" type="date" value={end} onChange={(event) => setEnd(event.target.value)} />
         </Field>
       </div>
-      <p className="muted">Leave the last date empty if I do not know when it ends. Then it keeps going, and I can add the date later.</p>
+      {start && (
+        <p className="form-note">
+          {repeatText({ repeat, start })}. The first one is on {formatDate(start, { weekday: 'long', day: 'numeric', month: 'short' })}.
+        </p>
+      )}
+      <p className="muted">
+        The first date sets the day. For a cost every Thursday, choose a Thursday as the first date. Leave the last date
+        empty if I do not know when it ends.
+      </p>
       {error && <p className="text-red form-note">{error}</p>}
       <Pressable className="button button-primary" onClick={save}>
         {editing ? 'Save' : 'Add fixed cost'}

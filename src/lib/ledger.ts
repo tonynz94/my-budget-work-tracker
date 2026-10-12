@@ -82,6 +82,15 @@ export function sumLedger(ledger: Ledger, from: string, to: string): LedgerSum {
   return { spent, income, byCategory }
 }
 
+// The money that came in on a day. My pay is in it too.
+export function incomeOn(ledger: Ledger, date: string): number {
+  let total = 0
+  for (const item of ledger.get(date) ?? []) {
+    if (item.kind === 'income') total += item.cents
+  }
+  return total
+}
+
 export function spentOn(ledger: Ledger, date: string): number {
   let total = 0
   for (const item of ledger.get(date) ?? []) {

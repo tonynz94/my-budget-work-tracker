@@ -1,4 +1,4 @@
-import { addDays, addMonths, daysBetween, monthStart } from './dates'
+import { addDays, addMonths, daysBetween, formatDate, monthStart } from './dates'
 
 export type Repeat = 'weekly' | 'fortnightly' | 'monthly'
 
@@ -16,10 +16,12 @@ export type FixedCost = {
   doneThrough: string | null
 }
 
-export const repeatLabels: Record<Repeat, string> = {
-  weekly: 'Every week',
-  fortnightly: 'Every 2 weeks',
-  monthly: 'Every month',
+// Says when the cost repeats, for example "Every week on Thursday".
+// The weekday and the day of the month come from the first date.
+export function repeatText(fixed: Pick<FixedCost, 'repeat' | 'start'>): string {
+  if (fixed.repeat === 'monthly') return `Every month on day ${Number(fixed.start.slice(8))}`
+  const day = formatDate(fixed.start, { weekday: 'long' })
+  return fixed.repeat === 'weekly' ? `Every week on ${day}` : `Every 2 weeks on ${day}`
 }
 
 // The fixed costs that will come on each date, from one date to another date.

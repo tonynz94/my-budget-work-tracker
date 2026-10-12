@@ -5,10 +5,10 @@ export function formatMoney(cents: number): string {
   return money.format(cents / 100)
 }
 
-// A short amount for the calendar. 2350 cents becomes $24 and 123400 cents becomes $1.2k.
-export function formatShortMoney(cents: number): string {
-  const dollars = cents / 100
-  return dollars < 1000 ? `$${Math.round(dollars)}` : `$${(dollars / 1000).toFixed(1)}k`
+// The exact amount for the calendar. 850 cents becomes 8.50.
+// There is no $ sign and no comma, because a calendar day is narrow.
+export function formatCalendarMoney(cents: number): string {
+  return (cents / 100).toFixed(2)
 }
 
 // "25" or "25.5" becomes cents. It returns null if the text is not a valid amount.
